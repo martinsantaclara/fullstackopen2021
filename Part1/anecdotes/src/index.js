@@ -1,9 +1,19 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 
+const Anecdote = ({anecdote,votes}) => {
+  return(
+    <>
+      <p>{anecdote}</p>
+      <p>has {votes} votes</p>
+    </>
+  )
+}
+
 const App = ({anecdotes}) => {
   const [selected, setSelected] = useState(0)
   const [votes, setVotes] = useState(Array(anecdotes.length).fill(0))
+  const [index, setIndex] = useState(-1)
 
   const handleClick = () => {
     let select = selected
@@ -17,14 +27,32 @@ const App = ({anecdotes}) => {
     const newVotes = [...votes]
     newVotes[selected]+=1
     setVotes(newVotes)
+
+
+    // reduce and indexOf are preferred for performance reasons according to https://www.measurethat.net/Benchmarks
+
+    const major = newVotes.reduce((maj,curr) => {
+      if (curr>maj) {maj=curr}
+      return maj
+    },0)
+    // const major = Math.max(...newVotes)
+
+    const ind = newVotes.indexOf(major)
+    // const ind = newVotes.findIndex(vote => vote === major)
+
+    setIndex(ind)
+
+
   }
 
   return (
     <div>
-      <p>{anecdotes[selected]}</p>
-      <p>has {votes[selected]} votes</p>
+      <h1>Anecdote of the day</h1>
+      <Anecdote anecdote={anecdotes[selected]} votes={votes[selected]}/>
       <button onClick={handleVotes}>vote</button>
       <button onClick={handleClick}>next anecdote</button>
+      <h1>Anecdote with most votes</h1>
+      {index!==-1 && <Anecdote anecdote={anecdotes[index]} votes={votes[index]}/>}
     </div>
   )
 }
